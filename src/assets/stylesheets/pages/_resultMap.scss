@@ -1,0 +1,104 @@
+.resultMap {
+  position: relative;
+  transition: all .5s ease;
+  transform: translateY(0%);
+  @include media-breakpoint-up(sm) {
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    background-color: #fff;
+  }
+  &.open {
+    transform: translateY(-100%);
+  }
+  & .breadcrumb-item + .breadcrumb-item::before {
+    color: $primary;
+  }
+}
+.resultMap-wrap {
+  transform: translateY(0%);
+  transition: all .5s ease;
+  @include media-breakpoint-up(sm) {
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    background-color: #fff;
+  }
+  & nav {
+    display: none;
+  }
+  &.open {
+    transform: translateY(-100%);
+    & .row:first-of-type {
+      display: none;
+    }
+    & nav{
+      display: flex;
+    }
+  }
+}
+.resultMap-secondWrap {
+  @include media-breakpoint-up(sm) {
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    background-color: #fff;
+  }
+  & .w-100 {
+    transition: all .4s ease;
+  }
+  & .w-100:nth-child(1) {
+    position: absolute;
+    background: $primary;
+    z-index: 1200;
+    @include media-breakpoint-up(sm) {
+      position: static;
+    }
+  }
+  &.open {
+    & .w-100:nth-child(1) {
+      position: absolute;
+      transform: translateY(75%);
+    }
+  }
+}
+.resultMap-main {
+  max-width: 421px;
+  &Header {
+    padding-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    position: relative;
+    // list 下方遮罩
+    &::before {
+      content: '';
+      width: 100%;
+      height: 50px;
+      position: absolute;
+      bottom: -380px;
+      z-index: 10;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0) 10.08%, #FFFFFF 59.5%);
+    }
+  }
+  &List {
+    height: 367px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    position: relative;
+    &::-webkit-scrollbar {
+      background-color: #fff;
+      width: 3px;
+    }
+    &::-webkit-scrollbar-thumb   {
+      border-radius: 10px; 
+      background-color: $primary;
+    }
+  }
+}
+.busMap {
+  position: absolute;
+  height: 350px;
+  @include media-breakpoint-up(sm) {
+    position: static;
+    height: 500px;
+  }
+}

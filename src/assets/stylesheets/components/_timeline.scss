@@ -1,0 +1,66 @@
+.timeLine {
+  & li {
+    display: flex;
+    align-items: center;
+    position: relative;
+    margin-bottom: 25px;
+    &::before {
+      content: '';
+      display: inline-block;
+      margin-right: 4px;
+      width: 17px;
+      height: 17px;
+      border: 5px solid $success;
+      background-color: #fff;
+      border-radius: 50%;
+    }
+    &::after {
+      content: '';
+      display: block;
+      position: absolute;
+      bottom: -101%;
+      left: 8.5px;
+      transform: translateX(-50%);
+      width: 2px;
+      height: 25px;
+      background-color: $success;
+    }
+  }
+  // 最後一個不要有線
+  & li:nth-last-of-type(1)::after,
+    li.arrive:nth-last-of-type(1)::after,
+    li.comming:nth-last-of-type(1)::after{
+    display: none;
+  }
+  & li.arrive {
+    color: $primary;
+    background-color: #fff;
+    & span {
+      color: #F66A4B;
+    }
+    &::before {
+      content: '';
+      display: inline-block;
+      margin-right: 4px;
+      width: 17px;
+      height: 17px;
+      border: 5px solid #F66A4B;
+      background-color: #fff;
+      border-radius: 50%;
+    }
+    &::after {
+      content: '';
+      display: block;
+      position: absolute;
+      bottom: -101%;
+      left: 8.5px;
+      transform: translateX(-50%);
+      width: 2px;
+      height: 25px;
+      background-color: #F66A4B;
+    }
+  }
+  & li.comming {
+    color: $primary;
+  }
+}

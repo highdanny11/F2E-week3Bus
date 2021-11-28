@@ -1,0 +1,123 @@
+$utilities: map-merge(
+  $utilities,
+  (
+    //  增加api
+    "letter-spacing":
+      (
+        property: letter-spacing,
+        class: letterSp,
+        responsive: true,
+        values: (
+          15: 1.5px,
+          45: 4.5px,
+        ),
+      ),
+    // 修改api
+    "rounded":
+      map-merge(
+        map-get($utilities, "rounded"),
+        (
+          responsive: true,
+          values:
+            map-merge(
+              map-get(map-get($utilities, "rounded"), "values"),
+              (
+                10: 10px,
+                12: 12px,
+                20: 20px,
+                50: 50px,
+              )
+            ),
+        )
+      ),
+    "rounded-top":
+      map-merge(
+        map-get($utilities, "rounded-top"),
+        (
+          responsive: true,
+          values:
+            map-merge(
+              map-get(map-get($utilities, "rounded-top"), "values"),
+              (
+                10: 10px,
+                12: 12px,
+                20: 20px,
+                50: 50px,
+              )
+            ),
+        )
+      ),
+      "rounded-bottom":
+      map-merge(
+        map-get($utilities, "rounded-bottom"),
+        (
+          responsive: true,
+          values:
+            map-merge(
+              map-get(map-get($utilities, "rounded-bottom"), "values"),
+              (
+                10: 10px,
+                12: 12px,
+                20: 20px,
+                50: 50px,
+              )
+            ),
+        )
+      ),
+    "position": (
+      property: position,
+      responsive: true,
+      values: static relative absolute fixed sticky,
+    ),
+    "font-size": (
+      rfs: true,
+      responsive: true,
+      property: font-size,
+      class: fs,
+      values: $font-sizes
+    ),
+    "viewport-height":
+      map-merge(
+        map-get($utilities, "viewport-height"),
+        (
+          responsive: true,
+          values:
+            map-merge(
+              map-get(map-get($utilities, "viewport-height"), "values"),
+              (
+                100: 100vh,
+                90: 90vh,
+                80: 80vh,
+                auto: auto,
+              )
+            ),
+        )
+      ),
+    "translate-middle":
+      map-merge(
+        map-get($utilities, "translate-middle"),
+        (
+          responsive: true,
+          values:
+            map-merge(
+              map-get(map-get($utilities, "translate-middle"), "values"),
+              (
+                auto:translate(0, 0),
+              )
+            ),
+        )
+      ),
+    "width": (
+      property: width,
+      class: w,
+      responsive: true,
+      values: (
+        25: 25%,
+        50: 50%,
+        75: 75%,
+        100: 100%,
+        auto: auto
+      )
+    ),
+  )
+);

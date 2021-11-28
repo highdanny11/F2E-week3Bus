@@ -1,0 +1,15 @@
+@import '~bootstrap/scss/functions';
+@import './helpers/variables';
+@import "~bootstrap/scss/utilities";
+@import './helpers/utilities'; 
+@import '~bootstrap/scss/bootstrap';
+
+@import './base/base';
+@import './components/btnIcon';
+@import './components/boxshadow';
+@import './components/switch';
+@import './components/textshadow';
+@import './components/timeline';
+@import './pages/index';
+@import './pages/result';
+@import './pages/resultMap';

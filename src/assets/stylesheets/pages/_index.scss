@@ -1,0 +1,90 @@
+.bg-img {
+  height: calc(100vh - 70px);
+  background-image: url("~@/assets/img/bgPic.png");
+  background-position: 50% 50%;
+  background-size: cover;
+  background-repeat: no-repeat;
+  clip-path: circle(85% at 50% 10%);
+  @include media-breakpoint-up(sm) {
+    height: calc(100vh - 95px);
+    clip-path: circle(60% at 50% 30%);
+  }
+  @include media-breakpoint-up(lg) {
+    height: calc(100vh - 95px);
+    clip-path: circle(155vh at 50% -80vh);
+  }
+}
+.helloBus {
+  font-family: "Pacifico", cursive;
+  letter-spacing: -0.3px;
+}
+h1.helloBus {
+  font-size: 24px;
+  line-height: 42px;
+  @include media-breakpoint-up(sm) {
+    font-size: 30px;
+    line-height: 53px;
+  }
+}
+h2.helloBus {
+  font-size: 32px;
+  line-height: 80px;
+  @include media-breakpoint-up(sm) {
+    font-size: 64px;
+    line-height: 140px;
+  }
+  @include media-breakpoint-up(lg) {
+    font-size: 80px;
+  }
+}
+.optionaList {
+  width: 100%;
+  position: absolute;
+  left: 50%;
+  top: -100px;
+  transform: translate(-50%, -50%);
+  @include media-breakpoint-up(sm) {
+    width: 50%;
+  }
+}
+.optionalBtn {
+  // 首頁四個按鈕
+  padding: 10px;
+  @include media-breakpoint-up(lg) {
+    padding: 20px;
+  }
+  & i {
+    font-size: 36px;
+    @include media-breakpoint-up(md) {
+      font-size: 40px;
+    }
+    @include media-breakpoint-up(lg) {
+      font-size: 60px;
+    }
+  }
+  & i.fa-map-marker-alt {
+    padding: 0 6px;
+  }
+  &-small {
+    width: 36px;
+    height: 36px;
+    @include media-breakpoint-up(sm) {
+      width: 44px;
+      height: 44px;
+    }
+    & i {
+      font-size: 20px;
+      @include media-breakpoint-up(sm) {
+        font-size: 26px;
+      }
+    }
+  }
+}
+.sideBar {
+  transition: all .5s ease;
+  z-index: 9600;
+  transform: translateX(-100%);
+  &.open {
+    transform: translateX(0);
+  }
+}
