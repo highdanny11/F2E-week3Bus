@@ -193,6 +193,7 @@ export default {
           })
           this.backData = [...goback];
           this.filterData = this.goData;//預設去程
+          this.showMarker();
         })
         .catch((err) => {
           console.log(err)
@@ -211,7 +212,17 @@ export default {
         this.getRouteDetail()
       })
     },
-    changeDirection() {
+    showMarker() { // 畫Marker
+      this.filterData.forEach((item) => {
+        const stationBike = L.divIcon({ // 預設icon黃色顯示為可租、黑色可還
+          html: `<div class="mapIcon"></div>`,
+          className: 'opactiy',
+        });
+        L.marker([item.StopPosition.PositionLat, item.StopPosition.PositionLon], { icon: stationBike })
+        .addTo(map).bindPopup(`<p>${item.StopName.Zh_tw}</p>`);
+      })
+    },
+    changeDirection() { // 切換名稱
       this.filterData === this.goData ? this.filterData = this.backData : this.filterData = this.goData;
     },
     getNextBusTime(str) { // 轉換格式
