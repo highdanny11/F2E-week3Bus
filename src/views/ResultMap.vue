@@ -61,8 +61,8 @@
             <span class="d-none d-sm-inline">公車班表</span></p>
         </div>
         <div class="col-6 col-md-5">
-          <h3 class="text-end fw-bold fs-1 mb-1">5053</h3>
-          <p class=" fs-sm-5 fs-7 mb-0 text-end">桃園<i class="fas fa-arrows-alt-h"></i>龍潭(經九龍里)</p>
+          <h3 class="text-end fw-bold fs-1 mb-1">{{routeName}}</h3>
+          <p class=" fs-sm-5 fs-7 mb-0 text-end">{{routeGoName}}<i class="fas fa-arrows-alt-h"></i>{{routeBackName}}</p>
         </div>
       </div>
       <nav class="position-relative justify-content-between align-items-center pt-6 mb-4">
@@ -87,10 +87,11 @@
             </a>
             <div>
               <p class="mb-2 text-info">行駛方向</p>
-              <p class="mb-0 text-success"><span class="text-secondary">往</span>  龍潭站</p>
+              <p class="mb-0 text-success"><span class="text-secondary">往</span>  {{filterData === goData ? routeBackName : routeGoName}}</p>
             </div>
             <!-- 可以切換顯示 -->
-            <a href="#" class="bg-secondary me-2 d-flex justify-content-center align-items-center rounded-circle text-white optionalBtn-small">
+            <a href="#" @click.prevent="changeDirection()"
+            class="bg-secondary me-2 d-flex justify-content-center align-items-center rounded-circle text-white optionalBtn-small">
                 <i class="bi bi-arrow-left-right"></i>
             </a>
           </div>
@@ -105,7 +106,7 @@
                 <!-- 3分鐘內顯示即將到站，大於顯示確切時間 -->
                 {{item?.EstimateTime === undefined ? getNextBusTime(item.NextBusTime): showArriveBusTime(item.EstimateTime )}}</span> {{item.StopName.Zh_tw}}
                 {{item?.StopStatus === 4 ? '今日未營運' : item?.StopStatus === 1 ? '尚未發車' : item?.StopStatus === 3 ? '末班車已過' : item?.StopStatus === 2 ? '交管不停靠' : ''}}
-                <div class="position-absolute end-5" v-if="item?.PlateNumb !== undefined && (item?.EstimateTime !== undefined && item?.EstimateTime <= 120)">
+                <div class="position-absolute end-5" v-if="item?.PlateNumb !== undefined && (item?.EstimateTime !== undefined && item?.EstimateTime <= 300)">
                   <div class="busOptional text-secondary px-1"><i class="fas fa-bus me-1"></i>{{item.PlateNumb}}</div>
                 </div>
               </li>
@@ -157,43 +158,44 @@ export default {
     openSide() {
       this.switchSide = !this.switchSide;
     },
-    getRouteDetail() {
+    getRouteDetail() { // 抓取到達時間
       // 跟實際上站牌有差別
       const url = `https://ptx.transportdata.tw/MOTC/v2/Bus/EstimatedTimeOfArrival/City/${this.areaName}/${this.routeName}?&$format=JSON`;
       this.$http.get(url, AuthorizationHeader)
         .then((res) => {
-          // this.goData = res.data.filter((item) => item.Direction === 0);
-          // this.backData = res.data.filter((item) => item.Direction === 1);
+          // 抓到的資料會抓到相似路徑的EX:152、152A...。先處理去程
           this.filterData = res.data.filter((item) => item.Direction === 0 && item.RouteName.Zh_tw === this.routeName);
-          console.log(this.filterData)
-          // this.getRouteBusStopPosition();
-          const aaa = []
+          let goback = []
           this.goData.forEach((item) => {
-            this.filterData.forEach((ooo) => {
-              if(item.StopName.Zh_tw === ooo.StopName.Zh_tw) {
+            this.filterData.forEach((filter) => {
+              if(item.StopName.Zh_tw === filter.StopName.Zh_tw) {
                 const data = {
                   ...item,
-                  ...ooo,
+                  ...filter,
                 }
-                aaa.push(data);
+                goback.push(data);
               }
             })
-            
           })
-          console.log(aaa);
-          this.filterData = aaa;
+          this.goData = [...goback];
+          goback = []; //清空
+          this.filterData = res.data.filter((item) => item.Direction === 1 && item.RouteName.Zh_tw === this.routeName);
+          this.backData.forEach((item) => {
+            this.filterData.forEach((filter) => {
+              if(item.StopName.Zh_tw === filter.StopName.Zh_tw) {
+                const data = {
+                  ...item,
+                  ...filter,
+                }
+                goback.push(data);
+              }
+            })
+          })
+          this.backData = [...goback];
+          this.filterData = this.goData;//預設去程
         })
         .catch((err) => {
           console.log(err)
-        })
-    },
-    getRouteBusPosition() { // 暫時沒有使用
-      const url = `https://ptx.transportdata.tw/MOTC/v2/Bus/RealTimeByFrequency/City/${this.areaName}/${this.routeName}?$format=JSON`;
-      this.$http.get(url, AuthorizationHeader)
-        .then((res) => {
-          console.log(res.data);
-          const godata = res.data.filter((item) => item.Direction === 0)
-          console.log(godata);
         })
     },
     getRouteBusStopPosition() {
@@ -204,21 +206,25 @@ export default {
         console.log(res.data[0].Stops);
         // 需要stops的排序和訂位資料
         this.goData = res.data[0].Stops;
-        this.backData = res.data[1].stops;
+        this.backData = res.data[1].Stops;
+        this.backData = this.backData.sort((a, b) => a - b); // 必須倒過來
         this.getRouteDetail()
       })
     },
-    getNextBusTime(str) {
+    changeDirection() {
+      this.filterData === this.goData ? this.filterData = this.backData : this.filterData = this.goData;
+    },
+    getNextBusTime(str) { // 轉換格式
       // 下一次抵達時間
       if(str) {
         const data = str.slice(11,16)
         return data
       }
     },
-    showArriveBusTime(num) {
+    showArriveBusTime(num) { // 轉換到達時間
       if(num <= 150) {
         return '即將到站';
-      }else if(num > 120){
+      }else if(num > 150){
         return `${Math.floor(num / 60)} 分`;
       }else {
         return '';
@@ -232,8 +238,7 @@ export default {
     this.routeName = data[1];
     this.routeGoName = data[2];
     this.routeBackName = data[3];
-    // this.getRouteDetail();
-    this.getRouteBusStopPosition();
+    this.getRouteBusStopPosition(); // 先抓站點，站點的API排序才是正確的
     map = L.map('map',{
       center:[24.2451603,120.7118819],
       zoom: 16,
