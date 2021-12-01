@@ -31,7 +31,7 @@
       <div class="row g-3 justify-content-center pb-7">
         <div class="col-sm-4">
           <select class="form-select rounded-12 text-warning" v-model="area" @change="getAreaBusRoute()">
-            <option value="">請選擇縣市</option>
+            <option value="" disabled >請選擇縣市</option>
             <option :value="item.City" v-for="(item, i) in CityArea" :key="i">{{item.CityName}}</option>
           </select>
         </div>

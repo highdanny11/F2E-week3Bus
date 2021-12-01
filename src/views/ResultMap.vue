@@ -137,6 +137,7 @@
 
 <script>
 import L from 'leaflet';
+import Wkt from 'wicket';
 import AuthorizationHeader from '@/assets/javascript/AuthorizationHeader.js';
 
 let map = {};
@@ -148,10 +149,13 @@ export default {
       goData: null,
       backData: null,
       filterData: null,
-      areaName: '',
-      routeName: '',
-      routeGoName: '',
-      routeBackName: '',
+      areaName: '', // 縣市名
+      routeName: '', // 路線名
+      routeGoName: '', // 去的路線名
+      routeBackName: '', // 返的路線名
+      routePosition: null,
+      groupLayer: L.layerGroup(), // 用來放marker圖層
+      myLayer: null,
     };
   },
   methods: {
@@ -199,12 +203,11 @@ export default {
           console.log(err)
         })
     },
-    getRouteBusStopPosition() {
+    getRouteBusStopPosition() { // 抓取站點地理位置
       // 有分去程站牌
       const url = `https://ptx.transportdata.tw/MOTC/v2/Bus/StopOfRoute/City/${this.areaName}/${this.routeName}?$format=JSON`
       this.$http.get(url, AuthorizationHeader)
       .then((res) => {
-        console.log(res.data[0].Stops);
         // 需要stops的排序和訂位資料
         this.goData = res.data[0].Stops;
         this.backData = res.data[1].Stops;
@@ -212,18 +215,56 @@ export default {
         this.getRouteDetail()
       })
     },
+    getRouteBusPosition() {
+      const url = `https://ptx.transportdata.tw/MOTC/v2/Bus/Shape/City/${this.areaName}/${this.routeName}?$format=JSON`;
+      this.$http.get(url, AuthorizationHeader)
+        .then((res) => {
+          res.data.forEach((item) => {
+            if(item.RouteName.Zh_tw === this.routeName) {
+              this.routePosition = item;
+              this.polyLine(this.routePosition.Geometry)
+              // console.log(this.routePosition)
+            }
+          })
+        })
+    },
     showMarker() { // 畫Marker
       this.filterData.forEach((item) => {
         const stationBike = L.divIcon({ // 預設icon黃色顯示為可租、黑色可還
           html: `<div class="mapIcon"></div>`,
           className: 'opactiy',
         });
-        L.marker([item.StopPosition.PositionLat, item.StopPosition.PositionLon], { icon: stationBike })
-        .addTo(map).bindPopup(`<p>${item.StopName.Zh_tw}</p>`);
+        this.groupLayer.addLayer(
+          L.marker([item.StopPosition.PositionLat, item.StopPosition.PositionLon], { icon: stationBike })
+          .bindPopup(`<p>${item.StopName.Zh_tw}</p>`)
+        )
       })
+      map.addLayer(this.groupLayer);
     },
-    changeDirection() { // 切換名稱
+    removeMarker() { // 刪除全部marker
+      this.groupLayer.eachLayer((layer) => {
+        this.groupLayer.removeLayer(layer);
+      });
+    },
+    polyLine(geo) { // 渲染路線
+      const wicket = new Wkt.Wkt();
+      wicket.read(geo);
+      const geojsonFeature = wicket.toJson();
+      this.routePosition.Geometry = geojsonFeature
+      this.myLayer = L.geoJson(geojsonFeature).addTo(map);
+      // 為了取得路線中心點
+      const numCenter = Math.floor(this.routePosition.Geometry.coordinates.length / 2 );
+      this.moveToMap(this.routePosition.Geometry.coordinates[numCenter]['1'],this.routePosition.Geometry.coordinates[numCenter]['0'])
+    },
+    moveToMap(latitude,longitude) {
+      map.panTo([latitude, longitude]);
+      map.setZoom(14);
+    },
+    changeDirection() { // 切換名稱和切換去返程
+      this.removeMarker();
       this.filterData === this.goData ? this.filterData = this.backData : this.filterData = this.goData;
+      this.showMarker();
+      console.log(this.filterData);
     },
     getNextBusTime(str) { // 轉換格式
       // 下一次抵達時間
@@ -250,10 +291,8 @@ export default {
     this.routeGoName = data[2];
     this.routeBackName = data[3];
     this.getRouteBusStopPosition(); // 先抓站點，站點的API排序才是正確的
-    map = L.map('map',{
-      center:[24.2451603,120.7118819],
-      zoom: 16,
-    });
+    this.getRouteBusPosition();
+    map = L.map('map').setView([22.73444963475145, 120.28458595275877], 14);
     L.tileLayer(
       'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
       {
